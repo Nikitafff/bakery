@@ -13,19 +13,24 @@ class Pizza:
     def __eq__(self, other):
         print(f'{self.__class__.__name__} = {self.size} size and '
               f'{other.__class__.__name__} = {other.size} size')
-        return self.size == other.size
+        return self.__class__ is other.__class__ and self.size == other.size
+
+    def __attrs__(self):
+        return (attr for attr in dir(self) if not attr.startswith('_'))
+
+
 
 
 class Margarita(Pizza):
-    topping: list = ['tomatoes']
+    topping: tuple = ('tomatoes',)
 
 
 class Pepperoni(Pizza):
-    topping: list = ['pepperoni']
+    topping: tuple = ('pepperoni',)
 
 
 class Hawaiian(Pizza):
-    topping: list = ['chicken', 'pineapples']
+    topping: tuple = ('chicken', 'pineapples')
 
 
 @click.group()
@@ -45,11 +50,9 @@ def menu():
     print('Наши пиццы:\n')
     for _class in Pizza.__subclasses__():
         x = _class
-        attributes = [attr for attr in dir(x)
-                      if not attr.startswith('__')]
         print(f'\n{x.__name__}')
-        for a in attributes:
-            if isinstance(getattr(x, a), list):
+        for a in x.__attrs__(x):
+            if isinstance(getattr(x, a), tuple):
                 print(f'{a} : {", ".join(getattr(x, a))}')
             else:
                 print(f'{a} : {getattr(x, a)}')
